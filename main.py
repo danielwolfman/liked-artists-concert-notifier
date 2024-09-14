@@ -1,5 +1,6 @@
 from notifier.spotify_client import SpotifyClient
 from notifier.concert_client import ConcertClient
+from notifier.notification_service import NotificationService
 from notifier.storage import Storage
 from geo import get_country_city_from_gps
 import json
@@ -25,6 +26,7 @@ def notify_all_subscribers():
     # Load subscribers and initialize clients
     subscribers = load_subscribers()
     concert_client = ConcertClient()
+    notification_service = NotificationService()
     storage = Storage()  # Initialize the storage for notified concerts
 
     # Loop through each subscriber
@@ -83,7 +85,7 @@ def notify_all_subscribers():
 
                 if concert['url']:
                     message += f"\n\n🎟️ [Get Tickets]({concert['url']})"
-                # notification_service.send_notification("Concert Alert", message, chat_id)
+                notification_service.send_notification("Concert Alert", message, chat_id)
 
                 # Mark the concert as notified
                 storage.mark_concert_as_notified(chat_id, concert_id)
