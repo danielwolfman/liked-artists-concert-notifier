@@ -1,5 +1,6 @@
+import time
 from notifier.spotify_client import SpotifyClient
-from notifier.concert_client import ConcertClient
+from notifier.concert_client import ConcertClient, DailyQuotaReachedException
 from notifier.notification_service import NotificationService
 from notifier.storage import Storage
 from geo import get_country_city_from_gps
@@ -13,6 +14,7 @@ logger = logging.getLogger(__name__)
 subscribers_file = 'subscribers.json'
 
 notification_service = NotificationService()
+concert_client = ConcertClient()
 
 # Load subscribers from file
 def load_subscribers():
@@ -27,7 +29,6 @@ def notify_all_subscribers():
 
     # Load subscribers and initialize clients
     subscribers = load_subscribers()
-    concert_client = ConcertClient()
     storage = Storage()  # Initialize the storage for notified concerts
 
     # Loop through each subscriber
@@ -46,7 +47,14 @@ def notify_all_subscribers():
 
         # Fetch concerts for each artist and notify the subscriber
         for artist in favorite_artists:
-            concerts = concert_client.get_concerts(artist)
+            try:
+                concerts = concert_client.get_concerts(artist)
+            except DailyQuotaReachedException:
+                logger.error(f"Daily API quota reached for chat {chat_id}")
+                return
+            except Exception as e:
+                logger.error(f"Error fetching concerts for artist {artist}: {e}")
+                continue
             for concert in concerts:
                 # Sanity check - ensure the concert is the correct artist
                 if concert['_embedded']['attractions'][0]['name'].lower() != artist.lower():
@@ -96,4 +104,11 @@ def notify_all_subscribers():
                 logger.info(f"Concert {concert['name']} has been notified to chat {chat_id}")
 
 if __name__ == "__main__":
-    notify_all_subscribers()
+    while True:
+        try:
+            notify_all_subscribers()
+            logger.info("Sleeping for 1 hour...")
+            time.sleep(3600)  # Sleep for 1 hour (3600 seconds)
+        except Exception as e:
+            logger.fatal(f"Error occurred: {e}")
+            time.sleep(60)  # In case of an error, wait 1 minute before retrying
