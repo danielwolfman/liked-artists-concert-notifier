@@ -12,6 +12,8 @@ logger = logging.getLogger(__name__)
 
 subscribers_file = 'subscribers.json'
 
+notification_service = NotificationService()
+
 # Load subscribers from file
 def load_subscribers():
     if os.path.exists(subscribers_file):
@@ -26,7 +28,6 @@ def notify_all_subscribers():
     # Load subscribers and initialize clients
     subscribers = load_subscribers()
     concert_client = ConcertClient()
-    notification_service = NotificationService()
     storage = Storage()  # Initialize the storage for notified concerts
 
     # Loop through each subscriber
@@ -60,25 +61,28 @@ def notify_all_subscribers():
                     continue  # Skip this concert if already notified
 
                 # Get city and country from the venue
-                city = concert['_embedded']['venues'][0].get('city', {}).get('name')
-                country = concert['_embedded']['venues'][0].get('country', {}).get('name')
+                venue = concert['_embedded'].get('venues', [{}])[0]
+                city = venue.get('city', {}).get('name')
+                country = venue.get('country', {}).get('name')
                 if not city or not country:
                     # Get the location from geographical coordinates
-                    lat = concert['_embedded']['venues'][0]['location']['latitude']
-                    lon = concert['_embedded']['venues'][0]['location']['longitude']
+                    lat = venue['location']['latitude']
+                    lon = venue['location']['longitude']
                     venue_location = get_country_city_from_gps(lat, lon)
                     city = venue_location['city']
                     country = venue_location['country']
                 
-                venue_name = concert['_embedded']['venues'][0].get('name', '')
+                venue_name = venue.get('name', '')
 
                 # Send notification for new concerts
                 message = (
                     f"🎤 *Concert Alert!*\n\n"
                     f"🎶 *Artist:* {artist}\n"
-                    f"🌍 *Location:* {city}, {country}\n"
                     f"📅 *Date:* {concert['dates']['start']['localDate']}"
                 )
+
+                if city and country:
+                    message += f"\n🌍 *Location:* {city}, {country}"
 
                 if venue_name:
                     message += f"\n🏟️ *Venue:* {venue_name}"
