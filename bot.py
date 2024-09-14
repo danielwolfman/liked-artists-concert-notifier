@@ -1,7 +1,6 @@
 import telebot
 import os
 import json
-import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 from config import TELEGRAM_BOT_TOKEN, SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET, SPOTIFY_REDIRECT_URI
 

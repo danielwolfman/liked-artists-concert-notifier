@@ -1,7 +1,11 @@
+import logging
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 from spotipy import SpotifyException
 from config import SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET, SPOTIFY_REDIRECT_URI
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
 class SpotifyClient:
     def __init__(self, access_token, refresh_token):
@@ -40,7 +44,7 @@ class SpotifyClient:
         # Catch expired token and handle refresh token process
         except SpotifyException as e:
             if e.http_status == 401:
-                print("Access token expired, refresh needed")
+                logger.debug("Access token expired, refresh needed")
                 return self.refresh_token_and_retry()
             else:
                 raise
@@ -63,13 +67,13 @@ class SpotifyClient:
                 self.access_token = token_info['access_token']
                 # Update Spotify client with the new access token
                 self.sp = spotipy.Spotify(auth=self.access_token)
-                print("Access token refreshed successfully.")
+                logger.debug("Access token refreshed successfully.")
                 # Retry the original operation (get favorite artists)
                 return self.get_favorite_artists()
             else:
-                print("Failed to refresh access token.")
+                logger.error("Failed to refresh access token.")
                 return None
 
         except Exception as e:
-            print(f"Error refreshing access token: {e}")
+            logger.error(f"Error refreshing access token: {e}")
             return None

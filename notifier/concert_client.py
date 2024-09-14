@@ -1,5 +1,9 @@
+import logging
 import requests
 from config import TICKETMASTER_API_KEY
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
 class ConcertClient:
     def __init__(self):
@@ -21,10 +25,10 @@ class ConcertClient:
                 # Return the first matching attraction (you can further filter if necessary)
                 return attractions[0]['id']
             else:
-                print(f"No attractions found for artist {artist_name}")
+                logger.debug(f"No attractions found for artist {artist_name}")
                 return None
         else:
-            print(f"Error fetching attractions for {artist_name}: {response.status_code}")
+            logger.error(f"Error fetching attractions for {artist_name}: {response.status_code}")
             return None
 
     # Fetch concerts for the given artist using the artist's attractionId
@@ -44,5 +48,5 @@ class ConcertClient:
             events = response.json().get('_embedded', {}).get('events', [])
             return events
         else:
-            print(f"Error fetching events for artist {artist_name}: {response.status_code}")
+            logger.error(f"Error fetching events for artist {artist_name}: {response.status_code}")
             return []

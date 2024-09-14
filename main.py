@@ -7,7 +7,7 @@ import json
 import logging
 import os
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 subscribers_file = 'subscribers.json'
@@ -49,14 +49,14 @@ def notify_all_subscribers():
             for concert in concerts:
                 # Sanity check - ensure the concert is the correct artist
                 if concert['_embedded']['attractions'][0]['name'].lower() != artist.lower():
-                    logger.warning(f"Concert {concert['name']} does not match artist {artist}")
+                    logger.debug(f"Concert {concert['name']} does not match artist {artist}")
                     continue
 
                 concert_id = concert['id']
 
                 # Check if the concert has already been notified
                 if storage.is_concert_notified(chat_id, concert_id):
-                    logger.info(f"Concert {concert['name']} has already been notified to chat {chat_id}")
+                    logger.debug(f"Concert {concert['name']} has already been notified to chat {chat_id}")
                     continue  # Skip this concert if already notified
 
                 # Get city and country from the venue
