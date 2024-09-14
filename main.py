@@ -85,7 +85,7 @@ def notify_all_subscribers():
 
                 if concert['url']:
                     message += f"\n\n🎟️ [Get Tickets]({concert['url']})"
-                notification_service.send_notification("Concert Alert", message, chat_id)
+                notification_service.send_notification(message, chat_id)
 
                 # Mark the concert as notified
                 storage.mark_concert_as_notified(chat_id, concert_id)

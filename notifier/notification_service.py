@@ -6,11 +6,11 @@ class NotificationService:
         self.token = TELEGRAM_BOT_TOKEN
 
     # Send a notification to the given chat_id
-    def send_notification(self, title, message, chat_id):
+    def send_notification(self, message, chat_id):
         url = f"https://api.telegram.org/bot{self.token}/sendMessage"
         data = {
             "chat_id": chat_id,  # The specific chat ID of the subscriber
-            "text": f"{title}\n{message}",
+            "text": message,
             "parse_mode": "Markdown",
         }
         response = requests.post(url, data=data)
