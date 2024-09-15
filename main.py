@@ -100,7 +100,7 @@ def notify_all_subscribers():
                 if venue_name:
                     message += f"\n🏟️ *Venue:* {venue_name}"
 
-                if concert['url']:
+                if 'url' in concert:
                     message += f"\n\n🎟️ [Get Tickets]({concert['url']})"
                 notification_service.send_notification(message, chat_id)
 
