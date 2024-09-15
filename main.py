@@ -57,7 +57,8 @@ def notify_all_subscribers():
                 continue
             for concert in concerts:
                 # Sanity check - ensure the concert is the correct artist
-                if concert['_embedded']['attractions'][0]['name'].lower() != artist.lower():
+                if (concert['_embedded'].get('attractions') and concert['_embedded']['attractions'][0]['name'].lower() != artist.lower()) or \
+                (concert['name'].lower() != artist.lower()):
                     logger.debug(f"Concert {concert['name']} does not match artist {artist}")
                     continue
 
