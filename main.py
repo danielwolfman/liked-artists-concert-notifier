@@ -56,6 +56,8 @@ def notify_all_subscribers():
                 logger.error(f"Error fetching concerts for artist {artist}: {e}")
                 continue
             for concert in concerts:
+                if '_embedded' not in concert:
+                    continue
                 # Sanity check - ensure the concert is the correct artist
                 if (concert['_embedded'].get('attractions') and concert['_embedded']['attractions'][0]['name'].lower() != artist.lower()) or \
                 (concert['name'].lower() != artist.lower()):
