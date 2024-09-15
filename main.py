@@ -75,11 +75,15 @@ def notify_all_subscribers():
                 country = venue.get('country', {}).get('name')
                 if not city or not country:
                     # Get the location from geographical coordinates
-                    lat = venue['location']['latitude']
-                    lon = venue['location']['longitude']
-                    venue_location = get_country_city_from_gps(lat, lon)
-                    city = venue_location['city']
-                    country = venue_location['country']
+                    lat = venue.get('location', {}).get('latitude')
+                    lon = venue.get('location', {}).get('longitude')
+                    if not lat or not lon:
+                        logger.warning(f"No location found for concert {concert['name']}")
+                        city = country = 'Unknown'
+                    else:
+                        venue_location = get_country_city_from_gps(lat, lon)
+                        city = venue_location['city']
+                        country = venue_location['country']
                 
                 venue_name = venue.get('name', '')
 
