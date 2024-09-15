@@ -1,6 +1,5 @@
 # Import the necessary modules from geopy
 from geopy.geocoders import Nominatim
-from geopy.exc import GeocoderTimedOut
 
 def get_country_city_from_gps(latitude, longitude):
     """
@@ -28,5 +27,6 @@ def get_country_city_from_gps(latitude, longitude):
         else:
             return {'country': 'Unknown', 'city': 'Unknown'}
     
-    except GeocoderTimedOut:
+    except Exception as e:
+        print(f"Error getting location details: {e}")
         return {'country': 'Unknown', 'city': 'Unknown'}
